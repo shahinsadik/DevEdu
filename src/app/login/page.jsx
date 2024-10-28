@@ -1,12 +1,14 @@
 "use client";
 
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Import Toastify CSS
 
 import logo from "../../assets/Logo/Logo.png";
 import { useRouter } from "next/navigation";
-import useAxiosPublic from "@/Hooks/useAxiosPublic";
+
 import useUser from "@/Security/useUser";
 import Image from "next/image";
+import useAxiosPublic from "@/Hooks/useAxiosPublic";
 
 const Login = () => {
   const axiosPublic = useAxiosPublic();
@@ -15,27 +17,31 @@ const Login = () => {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    const phone = e.target.phone.value;
+    const email = e.target.email.value;
     const password = e.target.password.value;
-    const info = { mobile: phone, password };
+    const info = { email, password };
 
     try {
       const res = await axiosPublic.post("/api/login", info);
+      
+      
       if (res.data) {
-        toast.success(res.data.message);
+        toast.success(res.data.message, { position: "top-right" }); // Customize position if needed
         localStorage.setItem("token", res?.data?.access_token);
-        navigate("/");
+        navigate.push("/admin/dashboard");
         refetch();
       }
     } catch (err) {
-      toast.error(err.response.data.message);
+      toast.error(err.message, { position: "top-right" }); // Customize position if needed
     }
   };
+
   return (
     <div className="min-h-screen max-w-xl mx-auto flex justify-center items-center w-full px-2">
+       
       <div className="w-full">
         <div className="w-full card shadow-xl bg-base-100 relative">
-          <div className="flex justify-center absolute  -top-10">
+          <div className="flex justify-center absolute -top-10">
             <Image
               src={logo}
               alt="Logo"
@@ -43,11 +49,6 @@ const Login = () => {
               height={500}
               className="object-cover w-1/5 rounded-full border-4 border-white"
             />
-            {/* <img
-              src={logo}
-              className="w-1/5 rounded-full border-4 border-white"
-              alt=""
-            /> */}
           </div>
 
           <h1 className="text-2xl text-center pt-14 lg:pt-[70px] pb-2 rounded-t-xl bg-gray-200 text-blue-700 lg:text-3xl font-semibold">
@@ -56,37 +57,32 @@ const Login = () => {
           <form onSubmit={handleLogin} className="card-body bg-white rounded-b-xl">
             <div className="form-control">
               <label className="label">
-                <span className="font-semibold">Phone *</span>
+                <span className="font-semibold text-black">Email *</span>
               </label>
               <input
-                type="number"
-                placeholder="phone"
-                name="phone"
-                className="border h-12 bg-gray-100 focus:ring-0 px-4 focus:border w-full focus:outline-none"
+                type="email"
+                placeholder="Email"
+                name="email"
+                className="border h-12 bg-gray-100 focus:ring-0 px-4 focus:border w-full focus:outline-none text-black"
                 required
               />
             </div>
-            <div className="form-control">
+            <div className="form-control ">
               <label className="label">
-                <span className="font-semibold">Password *</span>
+                <span className="font-semibold text-black">Password *</span>
               </label>
               <input
                 type="password"
                 name="password"
                 placeholder="password"
-                className="border h-12 bg-gray-100 focus:ring-0 px-4 focus:border w-full focus:outline-none"
+                className="border h-12 text-black bg-gray-100 focus:ring-0 px-4 focus:border w-full focus:outline-none"
                 required
               />
-              {/* <label className="label">
-                <Link to='' className="label-text-alt link link-hover">
-                  Forgot password?
-                </Link>
-              </label> */}
             </div>
             <div className="form-control mt-6">
               <button
                 type="submit"
-                className="btn bg btn-primary  text-xl rounded-sm"
+                className="btn bg btn-primary text-xl rounded-sm"
               >
                 Login
               </button>

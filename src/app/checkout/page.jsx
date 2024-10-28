@@ -1,98 +1,196 @@
+"use client";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { RiDeleteBin5Line } from "react-icons/ri";
+import { toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 const Checkout = () => {
+  const [cartItems, setCartItems] = useState([]);
+
+  // Fetch cart data from local storage
+  useEffect(() => {
+    const storedCart = JSON.parse(localStorage.getItem("cartItems")) || [];
+    setCartItems(storedCart);
+  }, []);
+
+  // Update cart item quantity in local storage
+  const updateQuantity = (index, quantity) => {
+    const updatedCart = [...cartItems];
+    updatedCart[index].quantity = quantity > 0 ? quantity : 1;
+    setCartItems(updatedCart);
+    localStorage.setItem("cartItems", JSON.stringify(updatedCart));
+  };
+
+  // Remove item from cart
+  const removeItem = (index) => {
+    const updatedCart = cartItems.filter((_, i) => i !== index);
+    setCartItems(updatedCart);
+    localStorage.setItem("cartItems", JSON.stringify(updatedCart));
+  };
+
+  // Calculate total price
+  const totalPrice = cartItems.reduce(
+    (total, item) => total + item.discount_price * item.quantity,
+    0
+  );
+
+  const [formData, setFormData] = useState({
+    fullName: "",
+    formNo: "",
+    parentName: "",
+    parentNumber: "",
+    school: "",
+    jobInfo: "",
+    email: "",
+    gender: "",
+    presentAddress: "",
+    permanentAddress: "",
+    nid: "",
+    mobile: "",
+    guardianName: "",
+    dob: "",
+    bloodGroup: "",
+    
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const coursePurchaseData = {
+      message: "Course purchase successfully completed.",
+      coursePurchaseData: {
+        ...formData,
+        course_id: "3",
+        admission_date: new Date().toISOString().split("T")[0],
+        course_fee: cartItems.length > 0 ? cartItems[0].discount_price || 0 : 0,
+        course_qty: cartItems.length > 0 ? cartItems[0].quantity : 0,
+        total_course_fee: totalPrice,
+        photo: "https://itder.com/storage/uploads/coursePurchasse/8870711730106960.gif",
+        user_id: 1,
+        form_no: formData.formNo,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+        id: 455,
+        totalPrice ,
+        cartItems
+      
+      },
+      status_code: 201,
+    };
+
+    // Store the data in local storage
+    localStorage.setItem("coursePurchaseData", JSON.stringify(coursePurchaseData));
+
+    // Optionally, you can log it to confirm
+    console.log("Course purchase data saved:", coursePurchaseData);
+    toast.success("Course purchase data saved successfully!");
+  };
+
   return (
-    <div className="  mt-5 border mx-2">
-      <div class="bg-[#6f42c1] text-white p-6 text-center mb-5">
+    <div className="mt-5 border mx-2">
+      <div className="bg-[#6f42c1] text-white p-6 text-center mb-5">
         <h2 className="text-5xl font-bold">Trainee Admission Form</h2>
       </div>
-      <form className="bg-white shadow-md text-black rounded-lg p-6">
+      <form className="bg-white shadow-md text-black rounded-lg p-6" onSubmit={handleSubmit}>
         {/* Trainee Information Section */}
         <div className="form-section">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label
-                htmlFor="fullName"
-                className="block font-semibold text-base mb-2"
-              >
+              <label htmlFor="fullName" className="block font-semibold text-base mb-2">
                 Full Name:
               </label>
               <input
                 type="text"
                 id="fullName"
+                name="fullName"
+                value={formData.fullName}
+                onChange={handleInputChange}
                 className="w-full border bg-white border-gray-300 rounded-md p-2"
+                required
               />
             </div>
             <div>
-              <label
-                htmlFor="formNo"
-                className="block font-semibold text-base mb-2"
-              >
+              <label htmlFor="formNo" className="block font-semibold text-base mb-2">
                 Form no:
               </label>
               <input
                 type="text"
                 id="formNo"
+                name="formNo"
+                value={formData.formNo}
+                onChange={handleInputChange}
                 className="w-full border bg-white border-gray-300 rounded-md p-2"
+                required
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label
-                htmlFor="parentName"
-                className="block font-semibold text-base mb-2"
-              >
+              <label htmlFor="parentName" className="block font-semibold text-base mb-2">
                 Father/Mother Name:
               </label>
               <input
                 type="text"
                 id="parentName"
+                name="parentName"
+                value={formData.parentName}
+                onChange={handleInputChange}
                 className="w-full border bg-white border-gray-300 rounded-md p-2"
+                required
               />
             </div>
             <div>
-              <label
-                htmlFor="parentNumber"
-                className="block font-semibold text-base mb-2"
-              >
+              <label htmlFor="parentNumber" className="block font-semibold text-base mb-2">
                 Number:
               </label>
               <input
                 type="text"
                 id="parentNumber"
+                name="parentNumber"
+                value={formData.parentNumber}
+                onChange={handleInputChange}
                 className="w-full bg-white border border-gray-300 rounded-md p-2"
+                required
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label
-                htmlFor="school"
-                className="block font-semibold text-base mb-2"
-              >
+              <label htmlFor="school" className="block font-semibold text-base mb-2">
                 School/College:
               </label>
               <input
                 type="text"
                 id="school"
+                name="school"
+                value={formData.school}
+                onChange={handleInputChange}
                 className="w-full bg-white border border-gray-300 rounded-md p-2"
+                required
               />
             </div>
             <div>
-              <label
-                htmlFor="jobInfo"
-                className="block font-semibold text-base mb-2"
-              >
+              <label htmlFor="jobInfo" className="block font-semibold text-base mb-2">
                 Job Information:
               </label>
               <input
                 type="text"
                 id="jobInfo"
+                name="jobInfo"
+                value={formData.jobInfo}
+                onChange={handleInputChange}
                 className="w-full bg-white border border-gray-300 rounded-md p-2"
               />
             </div>
@@ -100,32 +198,32 @@ const Checkout = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label
-                htmlFor="email"
-                className="block font-semibold text-base mb-2"
-              >
+              <label htmlFor="email" className="block font-semibold text-base mb-2">
                 Email:
               </label>
               <input
                 type="email"
                 id="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
                 className="w-full bg-white border border-gray-300 rounded-md p-2"
+                required
               />
             </div>
             <div>
-              <label
-                htmlFor="gender"
-                className="block font-semibold text-base mb-2"
-              >
+              <label htmlFor="gender" className="block font-semibold text-base mb-2">
                 Gender:
               </label>
               <select
                 id="gender"
+                name="gender"
+                value={formData.gender}
+                onChange={handleInputChange}
                 className="w-full bg-white border border-gray-300 rounded-md p-2"
+                required
               >
-                <option value="" disabled selected>
-                  Select Gender
-                </option>
+                <option value="" disabled>Select Gender</option>
                 <option value="Female">Female</option>
                 <option value="Male">Male</option>
                 <option value="Others">Other</option>
@@ -135,221 +233,155 @@ const Checkout = () => {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label
-                htmlFor="presentAddress"
-                className="block font-semibold text-base mb-2"
-              >
+              <label htmlFor="presentAddress" className="block font-semibold text-base mb-2">
                 Present Address:
               </label>
               <textarea
                 id="presentAddress"
+                name="presentAddress"
+                value={formData.presentAddress}
+                onChange={handleInputChange}
                 className="w-full bg-white border border-gray-300 rounded-md p-2"
+                required
               />
             </div>
             <div>
-              <label
-                htmlFor="permanentAddress"
-                className="block font-semibold text-base mb-2"
-              >
+              <label htmlFor="permanentAddress" className="block font-semibold text-base mb-2">
                 Permanent Address:
               </label>
               <textarea
                 id="permanentAddress"
+                name="permanentAddress"
+                value={formData.permanentAddress}
+                onChange={handleInputChange}
                 className="w-full bg-white border border-gray-300 rounded-md p-2"
+                required
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label
-                htmlFor="nid"
-                className="block font-semibold text-base mb-2"
-              >
+              <label htmlFor="nid" className="block font-semibold text-base mb-2">
                 NID Number:
               </label>
               <input
                 type="text"
                 id="nid"
+                name="nid"
+                value={formData.nid}
+                onChange={handleInputChange}
                 className="w-full bg-white border border-gray-300 rounded-md p-2"
+                required
               />
             </div>
             <div>
-              <label
-                htmlFor="mobile"
-                className="block font-semibold text-base mb-2"
-              >
-                Mobile No:
+              <label htmlFor="mobile" className="block font-semibold text-base mb-2">
+                Mobile Number:
               </label>
               <input
                 type="text"
                 id="mobile"
+                name="mobile"
+                value={formData.mobile}
+                onChange={handleInputChange}
                 className="w-full bg-white border border-gray-300 rounded-md p-2"
+                required
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label
-                htmlFor="guardianName"
-                className="block font-semibold text-base mb-2"
-              >
-                Local Guardian’s Name:
+              <label htmlFor="guardianName" className="block font-semibold text-base mb-2">
+                Guardian Name:
               </label>
               <input
                 type="text"
                 id="guardianName"
+                name="guardianName"
+                value={formData.guardianName}
+                onChange={handleInputChange}
                 className="w-full bg-white border border-gray-300 rounded-md p-2"
+                required
               />
             </div>
             <div>
-              <label
-                htmlFor="dob"
-                className="block font-semibold text-base mb-2"
-              >
+              <label htmlFor="dob" className="block font-semibold text-base mb-2">
                 Date of Birth:
               </label>
               <input
                 type="date"
                 id="dob"
+                name="dob"
+                value={formData.dob}
+                onChange={handleInputChange}
                 className="w-full bg-white border border-gray-300 rounded-md p-2"
+                required
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
             <div>
-              <label
-                htmlFor="bloodGroup"
-                className="block font-semibold text-base mb-2"
-              >
+              <label htmlFor="bloodGroup" className="block font-semibold text-base mb-2">
                 Blood Group:
               </label>
               <select
                 id="bloodGroup"
+                name="bloodGroup"
+                value={formData.bloodGroup}
+                onChange={handleInputChange}
                 className="w-full bg-white border border-gray-300 rounded-md p-2"
+                required
               >
-                <option value="" disabled selected>
-                  Select Blood Group
-                </option>
+                <option value="" disabled>Select Blood Group</option>
                 <option value="A+">A+</option>
                 <option value="A-">A-</option>
                 <option value="B+">B+</option>
                 <option value="B-">B-</option>
-                <option value="AB+">AB+</option>
-                <option value="AB-">AB-</option>
                 <option value="O+">O+</option>
                 <option value="O-">O-</option>
+                <option value="AB+">AB+</option>
+                <option value="AB-">AB-</option>
               </select>
             </div>
           </div>
         </div>
 
-        <div className="m-mt_16px">
-          <div className="pt-p_16px">
-            <div className="lg:flex items-start gap-3">
-              <div className="w-full lg:w-[58%] bg-white border-2">
-                <table className=" overflow-x-auto  w-full">
-                  <thead>
-                    <tr className="border-b-4  border-gray-300">
-                      <th className="text-[14.4px] w-6/12 font-bold p-[7px] text-black ">
-                        Course
-                      </th>
-                      <th className="text-[14.4px] font-bold p-[7px] text-black">
-                        Price
-                      </th>
-                      <th className="text-[14.4px] font-bold p-[7px] text-black">
-                        Quantity
-                      </th>
-                      <th className="text-[14.4px] font-bold p-[7px] text-black">
-                        Sub Total
-                      </th>
-                    </tr>
-                  </thead>
-
-                  <tbody className="overflow-x-auto ">
-                    <tr className="border-b border-gray-300 overflow-x-auto">
-                      <td>
-                        <div className="flex items-center justify-center ">
-                          <div className="w-[20%] text-center flex items-center justify-center ">
-                            <RiDeleteBin5Line className="text-xl hover:text-footer_color cursor-pointer" />
-                          </div>
-                          <div className="flex flex-col text-center justify-center items-center py-2  w-[80%]">
-                            <div className="mask">
-                              <Image
-                              height={500}
-                              width={500}
-                                className="h-[40px] w-[70px]"
-                                src=""
-                                alt="Course"
-                              />
-                            </div>
-                            <p className="text-[14.4px] px-[7px] text-center flex ">
-                              Course name{" "}
-                              <span className="hidden lg:flex ">
-                                - unit name
-                              </span>
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <p className="text-[14.4px] font-bold p-[7px] text-black text-center">
-                          discount price
-                        </p>
-                      </td>
-                      <td>
-                        <div className="flex justify-center">
-                          <div className="border">
-                            <button className="px-4 w-[30px] font-bold font_standard my-1.5">
-                              -
-                            </button>
-                          </div>
-                          <div className="border-y">
-                            <input
-                              type="number"
-                              className="font-bold w-[30px] lg:w-[60px] font_standard px-2 text-center mx-auto h-full"
-                            />
-                          </div>
-                          <div className="border">
-                            <button className="px-4 w-[30px] font-bold font_standard my-1.5">
-                              +
-                            </button>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <p className="text-[14.4px] font-bold p-[7px] text-black text-center">
-                          discount price * quantity
-                        </p>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-              <div className="lg:w-[41%] bg-white border-2 ">
-                <div className="px-[30px]">
-                  <h2 className="font-bold  text-start text-text_medium pt-2 pb-1 border-b-2 border-black">
-                    Cart Summary
-                  </h2>
-                  <div className="py-3 flex justify-between border-b border-gray-300">
-                    <p className="text-black font-bold">Total Price</p>
-                    <p className="text-black font-bold"></p>
+        {/* Cart Items Section */}
+        <div className="border-t mt-6 pt-4">
+          <h3 className="text-xl font-bold mb-4">Selected Courses</h3>
+          <div>
+            {cartItems.length === 0 ? (
+              <p className="text-red-500">No items in the cart.</p>
+            ) : (
+              cartItems.map((item, index) => (
+                <div key={index} className="flex justify-between items-center p-4 border mb-2">
+                  <div className="flex items-center">
+                    <Image src={item.photo} alt={item.name} width={80} height={80} className="rounded-lg" />
+                    <div className="ml-4">
+                      <h4 className="font-semibold">{item.name}</h4>
+                      <p className="text-gray-600">
+                        Price: ${item.discount_price} x {item.quantity}
+                      </p>
+                    </div>
                   </div>
-
-                  <Link
-                    href=""
-                    state={"bdt"}
-                    className="font-medium text-black mb-2 border-2 hover:bg-[#D2C5A2] duration-300 py-2 px-4  block text-center mx-auto w-full"
-                  >
-                    Submit
-                  </Link>
+                  <button onClick={() => removeItem(index)} className="text-red-500">
+                    <RiDeleteBin5Line size={24} />
+                  </button>
                 </div>
-              </div>
-            </div>
+              ))
+            )}
+          </div>
+          <div className="mt-4">
+            <h4 className="font-semibold">Total: ${totalPrice.toFixed(2)}</h4>
           </div>
         </div>
+
+        <button type="submit" className="bg-[#6f42c1] text-white px-4 py-2 mt-4 rounded-md">
+          Submit Admission
+        </button>
       </form>
     </div>
   );

@@ -2,8 +2,10 @@ import localFont from "next/font/local";
 import "./globals.css";
 import Wrapper from "./wrapper";
 import OrderProvider from "@/ContextAPIs/OrderProvider";
-import { QueryClientProvider } from "@tanstack/react-query";
-import queryClient from "@/lib/react-query-client";
+import { ToastContainer } from "react-toastify";
+// import { QueryClientProvider } from "@tanstack/react-query";
+// import queryClient from "@/lib/react-query-client";
+
 
 // Import and set up custom fonts
 const geistSans = localFont({
@@ -32,7 +34,7 @@ export default function RootLayout({ children }) {
         {/* OrderProvider wraps Wrapper so that the context is available */}
         
 
-        <OrderProvider>
+        <OrderProvider><ToastContainer />
           <Wrapper>
             {children}
           </Wrapper>
