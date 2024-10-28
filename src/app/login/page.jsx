@@ -28,7 +28,7 @@ const Login = () => {
       if (res.data) {
         toast.success(res.data.message, { position: "top-right" }); // Customize position if needed
         localStorage.setItem("token", res?.data?.access_token);
-        navigate.push("/admin/dashboard");
+        navigate.push("/");
         refetch();
       }
     } catch (err) {
