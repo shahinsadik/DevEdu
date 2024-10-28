@@ -1,34 +1,32 @@
 "use client";
 
-import useAxiosSecure from "@/Hooks/useAxiosSecure"; // Import the custom hook for secure axios requests
+
+import useAxiosPublic from "@/Hooks/useAxiosPublic";
 import React, { useState } from "react"; // Import React and useState hook
 import { IoMdSearch } from "react-icons/io"; // Import search icon from react-icons
 
 const Search = () => {
-    const axiosSecure = useAxiosSecure(); // Initialize secure axios instance
+    const axiosSecure = useAxiosPublic(); // Initialize secure axios instance
     const [searchTerm, setSearchTerm] = useState(""); // State for the search term
     const [courses, setCourses] = useState([]); // State to store search results
     const [loading, setLoading] = useState(false); // State for loading indicator
 
     // Function to handle the search action
     const handleSearch = async () => {
-        axiosSecure.get('/api/search-purchase-data', async (req, res) => {
-            const { searchTerm } = req.query;
-            try {
-                // Your logic to search for courses by phone_no or form_no
-                const courses = await Course.find({
-                    $or: [
-                        { phone_no: searchTerm },
-                        { form_no: searchTerm }
-                    ]
-                });
-                res.json(courses);
-            } catch (error) {
-                res.status(500).json({ message: "Error fetching data" });
-            }
-        });
-           
-             
+        if (!searchTerm) return; // Don't search if the search term is empty
+        setLoading(true); // Set loading to true
+
+        try {
+            const response = await axiosSecure.get('/api/search-purchase-data', {
+                params: { searchTerm } // Send searchTerm as a query parameter
+            });
+            setCourses(response.data); // Set courses to the response data
+        } catch (error) {
+            console.error("Error fetching data:", error);
+            // Optionally handle errors, e.g., set an error message state
+        } finally {
+            setLoading(false); // Set loading to false after request completion
+        }
     };
 
     return (
